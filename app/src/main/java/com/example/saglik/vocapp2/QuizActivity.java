@@ -209,7 +209,9 @@ public class QuizActivity extends AppCompatActivity {
 
     @SuppressLint("SetTextI18n")
     public void setQuestionAndChoices (){
+        //Increase question number
         questionIndex++;
+
         //Set question
         List<Record> allRecordsMixed = getAllRandomized();
         question = allRecordsMixed.get(0);
@@ -223,14 +225,11 @@ public class QuizActivity extends AppCompatActivity {
         String wrongAnswer3 = allRecordsMixed.get(3).english;
 
         //Makes sure that right answer will not be displayed always in same button
-
         int r = generateRandom0to3();
         choices[r].setText(rightAnswer);
         choices[(r +1)%4].setText(wrongAnswer1);
         choices[(r +2)%4].setText(wrongAnswer2);
         choices[(r +3)%4].setText(wrongAnswer3);
-
-        //Increase question number
     }
 
     private void setChoicesColorGray() {

@@ -25,9 +25,10 @@ import com.activeandroid.ActiveAndroid;
 import com.activeandroid.query.Delete;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -228,7 +229,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //ExporttoCSV
+        //Export
         exportButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
@@ -292,34 +293,41 @@ public class MainActivity extends AppCompatActivity {
         }
    */
         File dir = Environment.getExternalStorageDirectory();
-        File file = new File(dir,"input.csv");
+        File file = new File(dir,"input.txt");
         String line;
         if(file.exists()){
             try{
-                BufferedReader reader = new BufferedReader(new FileReader(file));
+            //  BufferedReader reader = new BufferedReader(new FileReader(file));
+                BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file.getAbsolutePath()), "UTF-8"));
                 while((line = reader.readLine()) != null){
                     //Split by ","
+                    if(line.charAt(0)==',')
+                        line = "n/a"+line;
+                    else if(line.charAt(line.length()-1)==',')
+                        line = line+"n/a";
                     String[] tokens = line.split(",");
                     //Read
                     Record sample = new Record();
                     sample.initial = String.valueOf(tokens[0].charAt(0)).toUpperCase();
                     sample.french = tokens[0];
                     sample.english = tokens[1];
-                    if(!(duplicateCheck(tokens[0], tokens[1])))
+                    if (!(duplicateCheck(tokens[0], tokens[1])))
                         sample.save();
                 }
                 Toast.makeText(getApplicationContext(), "Data is imported from 'Files', duplicate records are disregarded!", Toast.LENGTH_SHORT).show();
             } catch (IOException e) {
+                Toast.makeText(getApplicationContext(), "File not found!", Toast.LENGTH_SHORT).show();
                 Log.wtf("My activity", "Error in importing words!");
                 e.printStackTrace();
             }
         }
         else {
-            Toast.makeText(getApplicationContext(), "'Files' directory is empty!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "File not found!", Toast.LENGTH_SHORT).show();
+            throw new RuntimeException("File not found!");
         }
     }
 
-    //Export database to .csv method
+    //Export database to file method
     private void exportDB() {
         List<Record> allRecords = getAll();
         List<String[]> data = new ArrayList<>();
@@ -331,14 +339,9 @@ public class MainActivity extends AppCompatActivity {
             File Root = Environment.getExternalStorageDirectory();
             Log.d("Export to", Root.getAbsolutePath());
             File Dir = new File(Root.getAbsolutePath()+"/Download");
-            File file = new File(Dir,"output.csv");
+            File file = new File(Dir,"output.txt");
             try {
                 FileOutputStream fos = new FileOutputStream(file);
-                //Make header
-                fos.write("FRENCH".getBytes());
-                fos.write(",".getBytes());
-                fos.write("ENGLISH".getBytes());
-                fos.write("\n".getBytes());
                 //Export records
                 for(String[] d : data){
                     fos.write(d[0].getBytes());
