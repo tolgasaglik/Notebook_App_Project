@@ -33,7 +33,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import static com.example.saglik.vocapp2.Record.databaseSize;
 import static com.example.saglik.vocapp2.Record.getAll;
+import static com.example.saglik.vocapp2.Record.getByInitial;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -123,8 +125,8 @@ public class MainActivity extends AppCompatActivity {
                         String recordTextEn = "";
                         for(int i=0; i<recordText.length();i++){
                             if(recordText.substring(i,i+5).equals(" <-> ")) {
-                                recordTextFr = recordText.substring(0, i);
-                                recordTextEn = recordText.substring(i+5);
+                                recordTextEn = recordText.substring(0, i);
+                                recordTextFr = recordText.substring(i+5);
                                 break;
                             }
                         }
@@ -186,7 +188,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 //Save and display new record
                 else{
-                    String initial = String.valueOf(french.charAt(0)).toUpperCase();
+                    String initial = String.valueOf(english.charAt(0)).toUpperCase();
                     TextView display = findViewById(R.id.display);
                     String newRecord = french+"\n"+english;
                     //Clean editviews after adding
@@ -216,8 +218,13 @@ public class MainActivity extends AppCompatActivity {
         quizButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, QuizActivity.class);
-                startActivity(intent);
+                if (databaseSize() < 30) {
+                    Toast.makeText(getApplicationContext(), "At least 30 records are required to take a quiz!", Toast.LENGTH_LONG).show();
+                }
+                else {
+                    Intent intent = new Intent(MainActivity.this, QuizActivity.class);
+                    startActivity(intent);
+                }
             }
         });
 
@@ -258,12 +265,12 @@ public class MainActivity extends AppCompatActivity {
         if(position!=26) {
             for (Record record : allRecords) {
                 if (record.initial.equals(letters[position]))
-                    wordsByLetter.add(record.french + " <-> " + record.english);
+                    wordsByLetter.add(record.english + " <-> " + record.french);
             }
         }
         else{
             for(Record record : allRecords)
-                wordsByLetter.add(record.french + " <-> " + record.english);
+                wordsByLetter.add(record.english + " <-> " + record.french);
         }
         //Display updated recordListView with the adapter
         ArrayAdapter<String> wordAdapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_list_item_1, wordsByLetter);
@@ -309,8 +316,8 @@ public class MainActivity extends AppCompatActivity {
                     //Read
                     Record sample = new Record();
                     sample.initial = String.valueOf(tokens[0].charAt(0)).toUpperCase();
-                    sample.french = tokens[0];
-                    sample.english = tokens[1];
+                    sample.english = tokens[0];
+                    sample.french = tokens[1];
                     if (!(duplicateCheck(tokens[0], tokens[1])))
                         sample.save();
                 }
@@ -329,10 +336,11 @@ public class MainActivity extends AppCompatActivity {
 
     //Export database to file method
     private void exportDB() {
+        String newLine = "\n";
         List<Record> allRecords = getAll();
         List<String[]> data = new ArrayList<>();
         for(Record r: allRecords){
-            data.add(new String[]{r.french,r.english});
+            data.add(new String[]{r.english,r.french});
         }
         String state = Environment.getExternalStorageState();
         if(Environment.MEDIA_MOUNTED.equals(state)){
@@ -347,7 +355,7 @@ public class MainActivity extends AppCompatActivity {
                     fos.write(d[0].getBytes());
                     fos.write(",".getBytes());
                     fos.write(d[1].getBytes());
-                    fos.write("\n".getBytes());
+                    fos.write(newLine.getBytes());
                 }
                 fos.close();
                 Toast.makeText(getApplicationContext(), "Data exported to Files/Download", Toast.LENGTH_SHORT).show();

@@ -35,6 +35,7 @@ public class QuizActivity extends AppCompatActivity {
         ActiveAndroid.initialize(this);
         scoreBar = findViewById(R.id.scoreBar);
         final Button buttonNext = findViewById(R.id.buttonNext);
+        buttonNext.setEnabled(false);
 
         //Map buttons to button array
         choices[0] = findViewById(R.id.button1);
@@ -44,11 +45,11 @@ public class QuizActivity extends AppCompatActivity {
 
         setQuestionAndChoices();
 
-
         choices[0].setOnClickListener(new View.OnClickListener(){
             @SuppressLint("SetTextI18n")
             @Override
             public void onClick(View v) {
+                buttonNext.setEnabled(true);
                 String question = questionView.getText().toString().toLowerCase();
                 question = extractWord(question);
                 String answer = choices[0].getText().toString().toLowerCase();
@@ -82,6 +83,7 @@ public class QuizActivity extends AppCompatActivity {
             @SuppressLint("SetTextI18n")
             @Override
             public void onClick(View v) {
+                buttonNext.setEnabled(true);
                 String question = questionView.getText().toString().toLowerCase();
                 question = extractWord(question);
                 String answer = choices[1].getText().toString().toLowerCase();
@@ -115,6 +117,7 @@ public class QuizActivity extends AppCompatActivity {
             @SuppressLint("SetTextI18n")
             @Override
             public void onClick(View v) {
+                buttonNext.setEnabled(true);
                 String question = questionView.getText().toString().toLowerCase();
                 question = extractWord(question);
                 String answer = choices[2].getText().toString().toLowerCase();
@@ -148,6 +151,7 @@ public class QuizActivity extends AppCompatActivity {
             @SuppressLint("SetTextI18n")
             @Override
             public void onClick(View v) {
+                buttonNext.setEnabled(true);
                 String question = questionView.getText().toString().toLowerCase();
                 question = extractWord(question);
                 String answer = choices[3].getText().toString().toLowerCase();
@@ -189,6 +193,7 @@ public class QuizActivity extends AppCompatActivity {
                     setChoicesColorGray();
                     for(int k=0; k<4; k++)
                         choices[k].setClickable(true);
+                    buttonNext.setEnabled(false);
                 }
             }
         });
@@ -225,8 +230,8 @@ public class QuizActivity extends AppCompatActivity {
         String wrongAnswer3 = allRecordsMixed.get(3).english;
 
         //Makes sure that right answer will not be displayed always in same button
-        int r = generateRandom0to3();
-        choices[r].setText(rightAnswer);
+        int r = generateRandom();
+        choices[r%4].setText(rightAnswer);
         choices[(r +1)%4].setText(wrongAnswer1);
         choices[(r +2)%4].setText(wrongAnswer2);
         choices[(r +3)%4].setText(wrongAnswer3);
@@ -239,9 +244,9 @@ public class QuizActivity extends AppCompatActivity {
         choices[3].setBackgroundColor(Color.LTGRAY);
     }
 
-    private int generateRandom0to3() {
+    private int generateRandom() {
         Random random = new Random();
-        return random.nextInt(4);
+        return random.nextInt(Integer.MAX_VALUE);
     }
 
 }
